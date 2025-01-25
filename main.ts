@@ -10,6 +10,9 @@ import { XYZ } from "ol/source";
 import subwayGeoJson from "./geoJSON/Subway Lines.json";
 import "./style.css";
 
+import { defaults as defaultControls } from "ol/control";
+import { defaults as defaultInteractions } from "ol/interaction";
+
 const vectorSource = new VectorSource({
   features: new GeoJSON().readFeatures(subwayGeoJson, {
     featureProjection: "EPSG:3857", // need to reproject features to the project used by the rest fo the app
@@ -26,7 +29,7 @@ const vectorLayer = new VectorLayer({
   }),
 });
 
-var baseLayer = new TileLayer<XYZ>({
+const baseLayer = new TileLayer<XYZ>({
   extent: [-8453323, 4774561, -7983695, 5165920],
   source: new XYZ({
     url: "https://maps{1-4}.nyc.gov/xyz/1.0.0/carto/basemap/{z}/{x}/{y}.jpg",
@@ -35,16 +38,24 @@ var baseLayer = new TileLayer<XYZ>({
   maxZoom: 19,
 });
 
-var labelLayer = new TileLayer<XYZ>({
+const labelLayer = new TileLayer<XYZ>({
   extent: [-8268000, 4870900, -8005000, 5055500],
   source: new XYZ({
     url: "https://maps{1-4}.nyc.gov/xyz/1.0.0/carto/label/{z}/{x}/{y}.png8",
   }),
 });
 
+const controls = defaultControls({ rotate: false });
+const interactions = defaultInteractions({
+  altShiftDragRotate: false,
+  pinchRotate: false,
+});
+
 const map = new Map({
   target: "map",
   layers: [baseLayer, labelLayer, vectorLayer],
+  controls: controls,
+  interactions: interactions,
   view: new View({
     center: [-8235252, 4969073],
     rotation: (-29 * Math.PI) / 180, // Manhattan deviates from true north 29 degrees, align map to grid
