@@ -7,9 +7,12 @@
     "serve": "vite preview"
   },
   "devDependencies": {
+    "@types/openlayers": "^4.6.23",
     "vite": "^6.0.7"
   },
   "dependencies": {
+    "install": "^0.13.0",
+    "npm": "^11.0.0",
     "ol": "latest"
   }
 }
