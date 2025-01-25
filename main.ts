@@ -69,18 +69,33 @@ const routeColors = {
   T: " #00add0",
 };
 
-const uniqueRouteSymbols = new Array();
+// partition the features by their name property
+const featuresGroupedByName = vectorSource.getFeatures().reduce((acc, item) => {
+  const key = item.getProperties().name;
+  if (!acc[key]) {
+    acc[key] = [];
+  }
+  acc[key].push(item);
+  return acc;
+}, {});
 
-const vectorLayer = new VectorLayer({
-  source: vectorSource,
-  style: (feature) =>
-    new Style({
-      stroke: new Stroke({
-        color: routeColors[feature.getProperties().rt_symbol],
-        width: 2,
+const vectorLayers = new Array<VectorLayer>();
+for (const [key, value] of Object.entries(featuresGroupedByName)) {
+  vectorLayers.push(
+    new VectorLayer({
+      source: new VectorSource({
+        features: value as any,
       }),
-    }),
-});
+      style: (feature) =>
+        new Style({
+          stroke: new Stroke({
+            color: routeColors[feature.getProperties().rt_symbol],
+            width: 1.5,
+          }),
+        }),
+    })
+  );
+}
 
 const baseLayer = new TileLayer<XYZ>({
   extent: [-8453323, 4774561, -7983695, 5165920],
@@ -106,7 +121,7 @@ const interactions = defaultInteractions({
 
 const map = new Map({
   target: "map",
-  layers: [baseLayer, labelLayer, vectorLayer],
+  layers: [baseLayer, labelLayer, ...vectorLayers],
   controls: controls,
   interactions: interactions,
   view: new View({
