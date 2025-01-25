@@ -1,14 +1,17 @@
-import { Feature, Map, View } from "ol";
+import { Map, View } from "ol";
 import GeoJSON from "ol/format/GeoJSON.js";
-import OSM from "ol/source/OSM";
-import Style, { StyleLike } from "ol/style/Style";
-import Stroke from "ol/style/Stroke";
 import TileLayer from "ol/layer/Tile";
-import VectorSource from "ol/source/Vector";
 import VectorLayer from "ol/layer/Vector";
+import { useGeographic } from "ol/proj";
+import OSM from "ol/source/OSM";
+import VectorSource from "ol/source/Vector";
+import Stroke from "ol/style/Stroke";
+import Style from "ol/style/Style";
 
 import subwayGeoJson from "./geoJSON/Subway Lines.json";
 import "./style.css";
+
+useGeographic();
 
 const vectorSource = new VectorSource({
   features: new GeoJSON().readFeatures(subwayGeoJson),
@@ -33,7 +36,8 @@ const map = new Map({
     vectorLayer,
   ],
   view: new View({
-    center: [0, 0],
-    zoom: 2,
+    center: [-73.97968, 40.703312],
+    rotation: (-29 * Math.PI) / 180, // Manhattan deviates from true north 29 degrees, align map to grid
+    zoom: 11,
   }),
 });
