@@ -1,32 +1,85 @@
 import { Map, View } from "ol";
+import { defaults as defaultControls } from "ol/control";
 import GeoJSON from "ol/format/GeoJSON";
+import { defaults as defaultInteractions } from "ol/interaction";
 import TileLayer from "ol/layer/Tile";
 import VectorLayer from "ol/layer/Vector";
+import { XYZ } from "ol/source";
 import VectorSource from "ol/source/Vector";
 import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
 
-import { XYZ } from "ol/source";
 import subwayGeoJson from "./geoJSON/Subway Lines.json";
 import "./style.css";
 
-import { defaults as defaultControls } from "ol/control";
-import { defaults as defaultInteractions } from "ol/interaction";
-
 const vectorSource = new VectorSource({
   features: new GeoJSON().readFeatures(subwayGeoJson, {
-    featureProjection: "EPSG:3857", // need to reproject features to the project used by the rest fo the app
+    featureProjection: "EPSG:3857", // need to reproject features to the projection used by the rest fo the app
   }),
 });
 
+// map of route symbols to line colors
+const routeColors = {
+  // IND Crosstown
+  // Here first because it's my favorite
+  G: " #6cbe45",
+
+  // IND Eight Avenue
+  A: " #0039a6",
+  C: " #0039a6",
+  E: " #0039a6",
+
+  // IND Sixth Avenue Lines
+  B: " #ff6319",
+  D: " #ff6319",
+  F: " #ff6319",
+  M: " #ff6319",
+
+  // BMT Canarsie
+  L: " #a7a9ac",
+
+  // BMT Nassau Street
+  J: " #996633",
+  Z: " #996633",
+
+  // BMT Broadway
+  N: " #fccc0a",
+  Q: " #fccc0a",
+  R: " #fccc0a",
+  W: " #fccc0a",
+
+  // IRT Broadway-7th Avenue
+  1: " #ee352e",
+  2: " #ee352e",
+  3: " #ee352e",
+
+  // IRT Lexington Avenue
+  4: " #00933c",
+  5: " #00933c",
+  6: " #00933c",
+
+  // IRT Flushing
+  7: " #b933ad",
+
+  // Shuttles
+  S: " #808183",
+
+  // counting some chickens before they hatch
+  // IND Second Avenue
+  T: " #00add0",
+};
+
+const uniqueRouteSymbols = new Array();
+
 const vectorLayer = new VectorLayer({
   source: vectorSource,
-  style: new Style({
-    stroke: new Stroke({
-      width: 2,
-      color: "green",
+  style: (feature) =>
+    new Style({
+      stroke: new Stroke({
+        color: routeColors[feature.getProperties().rt_symbol],
+        width: 2,
+      }),
     }),
-  }),
 });
 
 const baseLayer = new TileLayer<XYZ>({
