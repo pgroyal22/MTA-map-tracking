@@ -1,4 +1,4 @@
-import { Map, View } from "ol";
+import { Feature, Map, View } from "ol";
 import { defaults as defaultControls } from "ol/control";
 import GeoJSON from "ol/format/GeoJSON";
 import { defaults as defaultInteractions } from "ol/interaction";
@@ -8,14 +8,27 @@ import { XYZ } from "ol/source";
 import VectorSource from "ol/source/Vector";
 import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
+import Text from "ol/style/Text";
+import { LineString } from "ol/geom";
+
+import lineOffset from "@turf/line-offset";
 
 import subwayGeoJson from "./geoJSON/Subway Lines.json";
 import "./style.css";
 
+const lines = new GeoJSON().readFeatures(subwayGeoJson);
+
+const linesWithSpecialOffsets = lines.map((line) => {
+  if (line.getProperties().name !== "2") {
+    line.getGeometry()?.transform("EPSG:4326", "EPSG:3857");
+    return line;
+  }
+
+  return offsetLine(line as Feature<LineString>);
+});
+
 const vectorSource = new VectorSource({
-  features: new GeoJSON().readFeatures(subwayGeoJson, {
-    featureProjection: "EPSG:3857", // need to reproject features to the projection used by the rest fo the app
-  }),
+  features: linesWithSpecialOffsets as any,
 });
 
 // map of route symbols to line colors
@@ -79,8 +92,20 @@ const featuresGroupedByName = vectorSource.getFeatures().reduce((acc, item) => {
   return acc;
 }, {});
 
+function offsetLine(line: Feature<LineString>) {
+  const geoJSONFormatter = new GeoJSON();
+
+  const geoJSONLine = geoJSONFormatter.writeFeatureObject(line) as any;
+
+  const offsetGeoJSONLine = lineOffset(geoJSONLine, 0.01);
+
+  return geoJSONFormatter.readFeature(offsetGeoJSONLine, {
+    featureProjection: "EPSG:3857",
+  });
+}
+
 const vectorLayers = new Array<VectorLayer>();
-for (const [key, value] of Object.entries(featuresGroupedByName)) {
+for (let [, value] of Object.entries(featuresGroupedByName)) {
   vectorLayers.push(
     new VectorLayer({
       source: new VectorSource({
@@ -92,6 +117,9 @@ for (const [key, value] of Object.entries(featuresGroupedByName)) {
             color: routeColors[feature.getProperties().rt_symbol],
             width: 1.5,
           }),
+          // text: new Text({
+          //   text: feature.getProperties().name,
+          // }),
         }),
     })
   );
