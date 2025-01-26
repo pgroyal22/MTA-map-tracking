@@ -26,37 +26,24 @@ const routeColors = {
 
   // IND Eight Avenue
   A: " #0039a6",
-  C: " #0039a6",
-  E: " #0039a6",
 
   // IND Sixth Avenue Lines
   B: " #ff6319",
-  D: " #ff6319",
-  F: " #ff6319",
-  M: " #ff6319",
 
   // BMT Canarsie
   L: " #a7a9ac",
 
   // BMT Nassau Street
   J: " #996633",
-  Z: " #996633",
 
   // BMT Broadway
   N: " #fccc0a",
-  Q: " #fccc0a",
-  R: " #fccc0a",
-  W: " #fccc0a",
 
   // IRT Broadway-7th Avenue
   1: " #ee352e",
-  2: " #ee352e",
-  3: " #ee352e",
 
   // IRT Lexington Avenue
   4: " #00933c",
-  5: " #00933c",
-  6: " #00933c",
 
   // IRT Flushing
   7: " #b933ad",
@@ -90,7 +77,7 @@ for (const [key, value] of Object.entries(featuresGroupedByName)) {
         new Style({
           stroke: new Stroke({
             color: routeColors[feature.getProperties().rt_symbol],
-            width: 1.5,
+            width: 1.75,
           }),
         }),
     })
