@@ -8,9 +8,33 @@ import { XYZ } from "ol/source";
 import VectorSource from "ol/source/Vector";
 import Stroke from "ol/style/Stroke";
 import Style from "ol/style/Style";
+import Circle from "ol/style/Circle";
 
-import subwayGeoJson from "./geoJSON/Subway Lines.json";
+import subwayGeoJson from "./geojson/lines.json";
+import stopsGeoJson from "./geojson/stops.json";
 import "./style.css";
+import Fill from "ol/style/Fill";
+
+const stopsLayer = new VectorLayer({
+  source: new VectorSource({
+    features: new GeoJSON().readFeatures(stopsGeoJson, {
+      featureProjection: "EPSG:3857",
+    }),
+  }),
+  style: new Style({
+    image: new Circle({
+      radius: 1,
+      fill: new Fill({
+        color: "black",
+      }),
+      stroke: new Stroke({
+        color: "black",
+        width: 1,
+      }),
+    }),
+  }),
+  opacity: 0.5,
+});
 
 const vectorSource = new VectorSource({
   features: new GeoJSON().readFeatures(subwayGeoJson, {
@@ -108,7 +132,7 @@ const interactions = defaultInteractions({
 
 const map = new Map({
   target: "map",
-  layers: [baseLayer, labelLayer, ...vectorLayers],
+  layers: [baseLayer, labelLayer, ...vectorLayers, stopsLayer],
   controls: controls,
   interactions: interactions,
   view: new View({
