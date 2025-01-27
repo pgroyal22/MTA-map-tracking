@@ -1,0 +1,32 @@
+import GeoJSON from "ol/format/GeoJSON";
+import VectorLayer from "ol/layer/Vector";
+import VectorSource from "ol/source/Vector";
+import Circle from "ol/style/Circle";
+import Fill from "ol/style/Fill";
+import Stroke from "ol/style/Stroke";
+import Style from "ol/style/Style";
+
+import stopsGeoJson from "./geojson/stops.json";
+
+const stopsLayer = new VectorLayer({
+  source: new VectorSource({
+    features: new GeoJSON().readFeatures(stopsGeoJson, {
+      featureProjection: "EPSG:3857",
+    }),
+  }),
+  style: new Style({
+    image: new Circle({
+      radius: 1,
+      fill: new Fill({
+        color: "black",
+      }),
+      stroke: new Stroke({
+        color: "black",
+        width: 1,
+      }),
+    }),
+  }),
+  opacity: 0.5,
+});
+
+export default stopsLayer;

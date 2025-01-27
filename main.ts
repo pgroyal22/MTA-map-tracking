@@ -1,113 +1,13 @@
 import { Map, View } from "ol";
 import { defaults as defaultControls } from "ol/control";
-import GeoJSON from "ol/format/GeoJSON";
 import { defaults as defaultInteractions } from "ol/interaction";
 import TileLayer from "ol/layer/Tile";
-import VectorLayer from "ol/layer/Vector";
 import { XYZ } from "ol/source";
-import VectorSource from "ol/source/Vector";
-import Stroke from "ol/style/Stroke";
-import Style from "ol/style/Style";
-import Circle from "ol/style/Circle";
 
-import subwayGeoJson from "./geojson/lines.json";
-import stopsGeoJson from "./geojson/stops.json";
 import "./style.css";
-import Fill from "ol/style/Fill";
 
-const stopsLayer = new VectorLayer({
-  source: new VectorSource({
-    features: new GeoJSON().readFeatures(stopsGeoJson, {
-      featureProjection: "EPSG:3857",
-    }),
-  }),
-  style: new Style({
-    image: new Circle({
-      radius: 1,
-      fill: new Fill({
-        color: "black",
-      }),
-      stroke: new Stroke({
-        color: "black",
-        width: 1,
-      }),
-    }),
-  }),
-  opacity: 0.5,
-});
-
-const vectorSource = new VectorSource({
-  features: new GeoJSON().readFeatures(subwayGeoJson, {
-    featureProjection: "EPSG:3857", // need to reproject features to the projection used by the rest fo the app
-  }),
-});
-
-// map of route symbols to line colors
-const routeColors = {
-  // IND Crosstown
-  // Here first because it's my favorite
-  G: " #6cbe45",
-
-  // IND Eight Avenue
-  A: " #0039a6",
-
-  // IND Sixth Avenue Lines
-  B: " #ff6319",
-
-  // BMT Canarsie
-  L: " #a7a9ac",
-
-  // BMT Nassau Street
-  J: " #996633",
-
-  // BMT Broadway
-  N: " #fccc0a",
-
-  // IRT Broadway-7th Avenue
-  1: " #ee352e",
-
-  // IRT Lexington Avenue
-  4: " #00933c",
-
-  // IRT Flushing
-  7: " #b933ad",
-
-  // Shuttles
-  S: " #808183",
-
-  // counting some chickens before they hatch
-  // IND Second Avenue
-  T: " #00add0",
-};
-
-// partition the features by their name property
-const featuresGroupedByName = vectorSource.getFeatures().reduce((acc, item) => {
-  const key = item.getProperties().name;
-  if (!acc[key]) {
-    acc[key] = [];
-  }
-  acc[key].push(item);
-  return acc;
-}, {});
-
-// creating a new vector layer for each line helps with overlapping line geometry
-const vectorLayers = new Array<VectorLayer>();
-for (const [key, value] of Object.entries(featuresGroupedByName)) {
-  vectorLayers.push(
-    new VectorLayer({
-      source: new VectorSource({
-        features: value as any,
-      }),
-      style: (feature) =>
-        new Style({
-          stroke: new Stroke({
-            color: routeColors[feature.getProperties().rt_symbol],
-            width: 1.75,
-          }),
-        }),
-    })
-  );
-}
+import subwayLineLayers from "./lines";
+import stopsLayer from "./stops";
 
 const baseLayer = new TileLayer<XYZ>({
   extent: [-8453323, 4774561, -7983695, 5165920],
@@ -133,7 +33,7 @@ const interactions = defaultInteractions({
 
 const map = new Map({
   target: "map",
-  layers: [baseLayer, labelLayer, ...vectorLayers, stopsLayer],
+  layers: [baseLayer, labelLayer, ...subwayLineLayers, stopsLayer],
   controls: controls,
   interactions: interactions,
   view: new View({
