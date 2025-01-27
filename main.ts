@@ -90,6 +90,7 @@ const featuresGroupedByName = vectorSource.getFeatures().reduce((acc, item) => {
   return acc;
 }, {});
 
+// creating a new vector layer for each line helps with overlapping line geometry
 const vectorLayers = new Array<VectorLayer>();
 for (const [key, value] of Object.entries(featuresGroupedByName)) {
   vectorLayers.push(
