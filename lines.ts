@@ -44,39 +44,48 @@ const routeColors = {
   T: " #00add0",
 };
 
-const vectorSource = new VectorSource({
-  features: new GeoJSON().readFeatures(subwayGeoJson, {
-    featureProjection: "EPSG:3857", // need to reproject features to the projection used by the rest fo the app
-  }),
-});
-
-// partition the features by their name property
-const featuresGroupedByName = vectorSource.getFeatures().reduce((acc, item) => {
-  const key = item.getProperties().name;
-  if (!acc[key]) {
-    acc[key] = [];
+export class SubwayLineLayers {
+  private subwayLineLayers: Array<VectorLayer>;
+  public getLayers() {
+    return this.subwayLineLayers;
   }
-  acc[key].push(item);
-  return acc;
-}, {});
 
-// creating a new vector layer for each line helps with overlapping line geometry
-const subwayLineLayers = new Array<VectorLayer>();
-for (const [key, value] of Object.entries(featuresGroupedByName)) {
-  subwayLineLayers.push(
-    new VectorLayer({
-      source: new VectorSource({
-        features: value as any,
+  constructor(geoJsonFormatter: GeoJSON) {
+    const vectorSource = new VectorSource({
+      features: geoJsonFormatter.readFeatures(subwayGeoJson, {
+        featureProjection: "EPSG:3857",
       }),
-      style: (feature) =>
-        new Style({
-          stroke: new Stroke({
-            color: routeColors[feature.getProperties().rt_symbol],
-            width: 1.75,
-          }),
-        }),
-    })
-  );
-}
+    });
 
-export default subwayLineLayers;
+    // partition the features by their name property
+    const featuresGroupedByName = vectorSource
+      .getFeatures()
+      .reduce((acc, item) => {
+        const key = item.getProperties().name;
+        if (!acc[key]) {
+          acc[key] = [];
+        }
+        acc[key].push(item);
+        return acc;
+      }, {});
+
+    // creating a new vector layer for each line helps with overlapping line geometry
+    this.subwayLineLayers = new Array<VectorLayer>();
+    for (const [key, value] of Object.entries(featuresGroupedByName)) {
+      this.subwayLineLayers.push(
+        new VectorLayer({
+          source: new VectorSource({
+            features: value as any,
+          }),
+          style: (feature) =>
+            new Style({
+              stroke: new Stroke({
+                color: routeColors[feature.getProperties().rt_symbol],
+                width: 1.75,
+              }),
+            }),
+        })
+      );
+    }
+  }
+}

@@ -6,8 +6,9 @@ import { XYZ } from "ol/source";
 
 import "./style.css";
 
-import subwayLineLayers from "./lines";
-import stopsLayer from "./stops";
+import { SubwayLineLayers } from "./lines";
+import { StopsLayer } from "./stops";
+import GeoJSON from "ol/format/GeoJSON";
 
 const baseLayer = new TileLayer<XYZ>({
   extent: [-8453323, 4774561, -7983695, 5165920],
@@ -31,9 +32,13 @@ const interactions = defaultInteractions({
   pinchRotate: false,
 });
 
+const geoJsonFormatter = new GeoJSON();
+const subwayLineLayers = new SubwayLineLayers(geoJsonFormatter);
+const stopsLayer = new StopsLayer(geoJsonFormatter).getLayer();
+
 const map = new Map({
   target: "map",
-  layers: [baseLayer, labelLayer, ...subwayLineLayers, stopsLayer],
+  layers: [baseLayer, labelLayer, ...subwayLineLayers.getLayers(), stopsLayer],
   controls: controls,
   interactions: interactions,
   view: new View({

@@ -8,25 +8,32 @@ import Style from "ol/style/Style";
 
 import stopsGeoJson from "./geojson/stops.json";
 
-const stopsLayer = new VectorLayer({
-  source: new VectorSource({
-    features: new GeoJSON().readFeatures(stopsGeoJson, {
-      featureProjection: "EPSG:3857",
-    }),
-  }),
-  style: new Style({
-    image: new Circle({
-      radius: 1,
-      fill: new Fill({
-        color: "black",
-      }),
-      stroke: new Stroke({
-        color: "black",
-        width: 1,
-      }),
-    }),
-  }),
-  opacity: 0.5,
-});
+export class StopsLayer {
+  private stopsLayer: VectorLayer<VectorSource<any>, any>;
+  public getLayer() {
+    return this.stopsLayer;
+  }
 
-export default stopsLayer;
+  constructor(geoJsonFormatter: GeoJSON) {
+    this.stopsLayer = new VectorLayer({
+      source: new VectorSource({
+        features: geoJsonFormatter.readFeatures(stopsGeoJson, {
+          featureProjection: "EPSG:3857",
+        }),
+      }),
+      style: new Style({
+        image: new Circle({
+          radius: 1,
+          fill: new Fill({
+            color: "black",
+          }),
+          stroke: new Stroke({
+            color: "black",
+            width: 1,
+          }),
+        }),
+      }),
+      opacity: 0.5,
+    });
+  }
+}
