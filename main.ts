@@ -19,13 +19,6 @@ const baseLayer = new TileLayer<XYZ>({
   maxZoom: 19,
 });
 
-const labelLayer = new TileLayer<XYZ>({
-  extent: [-8268000, 4870900, -8005000, 5055500],
-  source: new XYZ({
-    url: "https://maps{1-4}.nyc.gov/xyz/1.0.0/carto/label/{z}/{x}/{y}.png8",
-  }),
-});
-
 const controls = defaultControls({ rotate: false });
 const interactions = defaultInteractions({
   altShiftDragRotate: false,
@@ -38,7 +31,7 @@ const stopsLayer = new StopsLayer(geoJsonFormatter).getLayer();
 
 const map = new Map({
   target: "map",
-  layers: [baseLayer, labelLayer, ...subwayLineLayers.getLayers(), stopsLayer],
+  layers: [baseLayer, ...subwayLineLayers.getLayers(), stopsLayer],
   controls: controls,
   interactions: interactions,
   view: new View({
