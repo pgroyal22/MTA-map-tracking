@@ -23,7 +23,7 @@ export class StopsLayer {
       }),
       style: new Style({
         image: new Circle({
-          radius: 1,
+          radius: 2,
           fill: new Fill({
             color: "black",
           }),
